@@ -15,7 +15,7 @@ export class DynamicMapView extends React.Component {
             "esri/layers/MapImageLayer",
             "esri/widgets/Legend"
         ], { css: true })
-            .then(([ArcGISMap, SceneView, MapImageLayer, Legend]) => {
+            .then(([Map, SceneView, MapImageLayer, Legend]) => {
                 // helper function to create a symbol
                 function createSymbol(color) {
                     return {
@@ -250,11 +250,13 @@ export class DynamicMapView extends React.Component {
                  * Add the layer to a map
                  *****************************************************************/
 
-                var map = new ArcGISMap({
-                    basemap: 'topo-vector'
+                var map = new Map({
+                    basemap: "gray-vector",
+                    layers: [layer]
+
                 });
 
-                this.view = new SceneView({
+                var view = new SceneView({
                     container: this.mapRef.current,
                     map: map,
                     zoom: 13,
@@ -262,7 +264,25 @@ export class DynamicMapView extends React.Component {
                 });
         
                 
-                map.add(layer);
+                // map.add(layer);
+                var legend = new Legend({
+                    view: view
+                  });
+          
+                  view.ui.add(legend, "bottom-left");
+                  view.ui.add("info-div", "top-right");
+          
+                  view.when(function () {
+                    // set sublayer visibility depending on the selected layer
+                    document
+                      .getElementById("layer-select")
+                      .addEventListener("change", function (event) {
+                        var newValue = parseInt(event.target.value);
+                        layer.sublayers.forEach(function (sublayer) {
+                          sublayer.visible = newValue === sublayer.id;
+                        });
+                      });
+                  });
 
             });
     }

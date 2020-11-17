@@ -28,8 +28,16 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root">
+ 
       <div id="webmap"></div>
+      <div id="info-div" class="esri-widget">
+        Select a demographic variable<br /><br />
+        <select id="layer-select">
+          <option value="0">Population density</option>
+          <option value="1" selected>Renter occupied units</option>
+          <option value="2">Median age</option>
+        </select>
+    
     </div>
     
     <!--

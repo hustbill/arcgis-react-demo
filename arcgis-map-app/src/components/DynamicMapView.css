@@ -4,3 +4,10 @@
     margin: 0;
     width: 100%;
   }
+
+.info-div {
+    background-color: white;
+    border-radius: 8px;
+    padding: 8px;
+    opacity: 0.92;
+  }
