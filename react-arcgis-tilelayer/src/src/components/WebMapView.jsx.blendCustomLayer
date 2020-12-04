@@ -1,0 +1,182 @@
+import React from 'react';
+import { loadModules } from 'esri-loader';
+
+export class WebMapView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.mapRef = React.createRef();
+    }
+
+    componentDidMount() {
+        loadModules([
+          "esri/Map",
+          "esri/request",
+          "esri/Color",
+          "esri/views/MapView",
+          "esri/widgets/LayerList",
+          "esri/layers/BaseTileLayer",
+          "esri/core/promiseUtils"
+          ], {css: true})
+          .then(([
+            Map,
+            MapView,
+            LayerList,
+            TileLayer,
+            BaseTileLayer,
+            promiseUtils
+          ]) => { 
+            /*****************************************************************
+             * Create one TileLayer instance pointing to a cached map service
+             * depicting World Imagery
+             *****************************************************************/
+            // var worldImageryLayer = new TileLayer({
+            //   url: 
+            //     "http://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
+            //   // This property can be used to uniquely identify the layer
+            //   id: "0",
+            //   opacity: 0.5,
+            //   visible: true
+            // });
+
+            // Custom TileLayer
+            // To create a custom tile layer, you must call the createSubclass() 
+            // method on the BaseTileLayer class. We'll name the custom layer TintLayer.
+            // Reference: https://developers.arcgis.com/javascript/latest/sample-code/layers-custom-tilelayer/index.html
+
+            var BlendLayer = BaseTileLayer.createSubclass({
+                // Add a multiplyLayers property. Its value will be used
+              // store tile layers that will be used to create
+              // a blended layer. Layers stored in this property
+              // will be blended using "multiply" operation.
+              properties: {
+                multiplyLayers: null
+              },
+
+              // The load() method is called when the layer is added to the map
+              // prior to it being rendered in the view.
+              load: function () {
+                // call load method on each tile layer stored in multiple property
+                this.multiplyLayers.forEach(function (layer) {
+                  // The tile layers must load() prior to the BlendLayer
+                  // resolving and moving to the "loaded" status.
+                  this.addResolvingPromise(layer.load());
+                }, this);
+              },
+
+              // // generate the tile url for a given level, row and column
+              // getTileUrl: function (level, row, col) {
+              //   level = 13 // hard-coded LOD 13
+              //   return this.urlTemplate
+              //     .replace("{z}", level)
+              //     .replace("{x}", col)
+              //     .replace("{y}", row);
+              // },
+
+             // Fetches the tile(s) visible in the view
+            fetchTile: function (level, row, col, options) {
+              var tilePromises = this.multiplyLayers.map(function (layer) {
+                // calls fetchTile() on the tile layers returned in multiplyLayers property
+                // for the tiles visible in the view
+                return layer.fetchTile(level, row, col, options);
+              });
+
+              return promiseUtils.eachAlways(tilePromises).then(
+                function (results) {
+                  // Reject with abort error if the request was aborted.
+                  // It is expected that `fetchTile` will already have rejected with abort errors
+                  // in that case but those errors are caught by `eachAlways`, so we need to re-
+                  // throw it
+                  if (options && options.signal && options.signal.aborted) {
+                    throw promiseUtils.createAbortError();
+                  }
+                  // create a canvas
+                  var width = this.tileInfo.size[0];
+                  var height = this.tileInfo.size[0];
+                  var canvas = document.createElement("canvas");
+                  var context = canvas.getContext("2d");
+
+                  canvas.width = width;
+                  canvas.height = height;
+
+                  // multiply - multiplies the numbers for each pixel of the top layer (nat geo)
+                  // with the corresponding pixel for the bottom layer (hillshade).
+                  context.globalCompositeOperation = "multiply";
+                  results.forEach(function (result) {
+                    var image = result.value;
+                    context.drawImage(image, 0, 0, width, height);
+                  });
+
+                  return canvas;
+                }.bind(this)
+              );
+            }
+          });
+
+            // Create a new instance of the TintLayer and set its properties
+            // http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/234/311
+            // var saTileLayer = new TintLayer({
+            //   urlTemplate:
+            //     "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{x}/{y}",
+            //   tint: new Color("#004FBB"),
+            //   title: "Tile Layer"
+            // });
+
+            var saTileLayer = new TileLayer({
+              url:
+                "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/0"
+            });
+            
+            var saTileLayer2 = new TileLayer({
+              url:
+                "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/1"
+            });
+            var blendLayer = new BlendLayer({
+              multiplyLayers: [saTileLayer, saTileLayer2],
+              title: "Blended NatGeo World Map",
+              copyright: "Blended National Geographic Layer"
+            });
+    
+    
+            /*****************************************************************
+             * Layers may be added to the map in the map's constructor
+             *****************************************************************/
+            var map = new Map({
+              multiplyLayers: [blendLayer]
+            });
+    
+            // create a new MapView and add the map
+            var view = new MapView({
+              container: this.mapRef.current,
+              map: map,
+              center: [-112.656079, 36.301955],
+              zoom: 11,
+              constraints: {
+                snapToZoom: false
+              }
+            });
+
+             // create a layer list widget
+            // var layerList = new LayerList({
+            //   view: view
+            // });
+
+            // view.ui.add(layerList, "top-right");
+
+            this.view = view;
+        });
+        
+    }
+
+    componentWillUnmount() {
+        if (this.view) {
+            // destroy the map view
+            this.view.destroy();
+        }
+    }
+
+    render() {
+        return (
+            <div className="webmap" ref={this.mapRef} />
+        );
+    }
+}
