@@ -9,6 +9,8 @@ import {
 
 import {HolidayList} from './components/HolidayList'
 import {HookForm} from './components/HookForm'
+import {DropdownBasicExample} from './components/DataRangeDropdown'
+import {DataRangeTextField} from './components/DateRangeTextField'
 
 import {SIMULATION_RESPONSE, GetLocalHolidays} from './utils/gameDetailsUtil'
 
@@ -26,7 +28,13 @@ function App() {
 
   const [{ data, isError }] = GetLocalHolidays({ holidays: [] }, inputDate);
 
+
   console.log('data: ', data)
+  let missionDurationFromProps = undefined
+  
+  const [missionDuration, setMissionDuration] = useState(
+    missionDurationFromProps,
+  )
 
   return (
     <>
@@ -36,6 +44,12 @@ function App() {
       </Stack.Item>
       <Stack.Item>
         <HolidayList/>
+      </Stack.Item>
+      <Stack.Item>
+        <DataRangeTextField
+           missionDuration={missionDuration}
+           setMissionDuration={setMissionDuration}
+        />
       </Stack.Item>
     </Stack>
     </>
