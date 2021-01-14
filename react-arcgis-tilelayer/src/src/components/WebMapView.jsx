@@ -123,6 +123,14 @@ export class WebMapView extends React.Component {
             const map = new Map({
               layers: [saTileLayer]
             });
+
+            // The layer will not be visible when the view is zoomed in beyond a scale of 1:1,000
+            // saTileLayer.maxScale = 1000;
+            // // The layer's visibility is not restricted to a maximum scale.
+            saTileLayer.maxScale = 0;
+
+            // the layer will be refreshed every 6 seconds.
+            saTileLayer.refreshInterval = 0.1;
     
             // create a new scene view and add the map
             var view = new SceneView({

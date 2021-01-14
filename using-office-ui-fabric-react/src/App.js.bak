@@ -1,0 +1,71 @@
+// import logo from './logo.svg';
+// import './App.css';
+// import { WebMapView } from './components/WebMapView';
+
+// function App() {
+//   <WebMapView />
+//   return (
+//     <div className="App">
+//       <header className="App-header">
+//         <img src={logo} className="App-logo" alt="logo" />
+//         <p>
+//           Edit <code>src/App.js</code> and save to reload.
+//         </p>
+//         <a
+//           className="App-link"
+//           href="https://reactjs.org"
+//           target="_blank"
+//           rel="noopener noreferrer"
+//         >
+//           Learn React
+//         </a>
+//       </header>
+//     </div>
+//   );
+// }
+
+// export default App;
+
+
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+import {getLocalHolidays} from './components/gameDetailsUtil'
+ 
+function App() {
+  const [holidayData, setHolidayData] = useState({ holidays: [] });
+
+  const selectedDate = '2021-03-11'
+
+  useEffect( () => {
+
+    const fetchData = async 
+    const country = 'YE' // yemen 
+    const location = 'AST'
+    const response = async () => {
+      getLocalHolidays(country, location, selectedDate)
+    } 
+    console.log('response: ', response)
+    setHolidayData(response)
+  }, [])
+
+
+  return (
+    // <p>{holidayData.holidays[0].name}</p>
+
+    <div className="col">
+    <h1>Local Holidays</h1>
+    <p>Here are local holidays!</p>
+    {holidayData.holidays.map(holiday => <div>{holiday.name}  </div>)}
+
+    
+    {/* {holidayData.holidays[0].name} */}
+    {/* <text>
+      {holidayData.holidays[0].name}
+    </text> */}
+  </div>
+  );
+}
+ 
+export default App;
