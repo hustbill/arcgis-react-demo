@@ -1,6 +1,25 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import axios from 'axios';
- 
+
+/**
+ * 
+ * Hooks API Reference:
+ * https://reactjs.org/docs/hooks-reference.html
+ * 
+ * Basic Hooks
+    useState
+    useEffect
+    useContext
+* Additional Hooks
+    useReducer
+    useCallback
+    useMemo
+    useRef
+    useImperativeHandle
+    useLayoutEffect
+    useDebugValue
+ */
+
 export const useDataApi = (initialUrl, initialData) => {
   const [data, setData] = useState(initialData);
   const [url, setUrl] = useState(initialUrl);
