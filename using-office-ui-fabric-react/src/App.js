@@ -11,6 +11,7 @@ import {HolidayList} from './components/HolidayList'
 import {HookForm} from './components/HookForm'
 import {DropdownBasicExample} from './components/DataRangeDropdown'
 import {DataRangeTextField} from './components/DateRangeTextField'
+import {ChatRecipientPicker} from './components/chat/ChatRecipientPicker'
 
 import {SIMULATION_RESPONSE, GetLocalHolidays} from './utils/gameDetailsUtil'
 
@@ -38,19 +39,26 @@ function App() {
 
   return (
     <>
-    <Stack>
+    <Stack horizontal>
+      <Stack horizontal>
       <Stack.Item>
         <HookForm/>
       </Stack.Item>
       <Stack.Item>
         <HolidayList/>
       </Stack.Item>
+      </Stack>
+      <Stack verticalAlign>
       <Stack.Item>
         <DataRangeTextField
            missionDuration={missionDuration}
            setMissionDuration={setMissionDuration}
         />
       </Stack.Item>
+      <Stack.Item>
+        <ChatRecipientPicker/>
+      </Stack.Item>
+    </Stack>
     </Stack>
     </>
   )
